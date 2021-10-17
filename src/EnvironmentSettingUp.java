@@ -4,19 +4,19 @@ import java.util.Scanner;
 
 public class EnvironmentSettingUp
 {
-    int[][][] board = new int[10][10][7];
+    int[][][] board = new int[10][10][8];
     int [][] agent_placement;
-    int BOARD_SIZE=10;
+    int sizeOfBoard =10;
     Scanner scanner=new Scanner(System.in);
-    int num,numOfPit=0,numOfGold=1,numOfWumpus=1,numOfArrow=1;
-    int Visited=0,Breeze=1,Gold=2,SafeSquare=3,Pit=4,Stench=5,Wumpus=6;
+    int num,numOfPit=0,numOfGold=1,numOfWumpus=1, numOfArrows =1;
+    int Visited=0,Breeze=1,Gold=2,SafeSquare=3,Pit=4,Stench=5,Wumpus=6,Glitter=7;
 
 
     public void setupEnvironment(){
 
-        for(int i=0;i<10;i++){
-            for(int j=0;j<10;j++){
-                for(int k=0;k<7;k++){
+        for(int i = 0; i< sizeOfBoard; i++){
+            for(int j = 0; j< sizeOfBoard; j++){
+                for(int k=0;k<8;k++){
                     board[i][j][k]=0;
                 }
             }
@@ -60,7 +60,7 @@ public class EnvironmentSettingUp
         System.out.println("Enter the number of Wumpus.");
         numOfWumpus=scanner.nextInt();
 
-        numOfArrow=numOfWumpus;
+        numOfArrows =numOfWumpus;
         generateRandomBoard(numOfGold,numOfPit,numOfWumpus);
 
     }
@@ -71,27 +71,36 @@ public class EnvironmentSettingUp
         agent_placement[9][0] = 1;
 
         do {
+
+            for(int i = 0; i< sizeOfBoard; i++){
+                for(int j = 0; j< sizeOfBoard; j++){
+                    for(int k=0;k<8;k++){
+                        board[i][j][k]=0;
+                    }
+                }
+            }
+
             Random rand = new Random();
             for (int i = 0; i < numOfPit; i++) {
                 int x = rand.nextInt(100);
                 int row = x / 10;
                 int col = x % 10;
-                if ((row == BOARD_SIZE - 1 && (col == 0 || col == 1)) || (row == BOARD_SIZE - 2 && col == 0)) {
+                if ((row == sizeOfBoard - 1 && (col == 0 || col == 1)) || (row == sizeOfBoard - 2 && col == 0) || (board[row][col][Pit]==1)) {
                     i--;
                     continue;
                 }
-                board[row][col][4] = 1;
+                board[row][col][Pit] = 1;
             }
 
             for(int i = 0; i< numOfWumpus; i++) {
                 int x = rand.nextInt( 100 );
                 int row = x / 10;
                 int col = x % 10;
-                if (  (row == BOARD_SIZE-1 && (col == 0 || col == 1)) || (row == BOARD_SIZE-2  && col == 0 )  ){
+                if (  (row == sizeOfBoard -1 && (col == 0 || col == 1)) || (row == sizeOfBoard -2  && col == 0 )  ){
                     i --;
                     continue;
                 }
-                if ( board[row][col][Pit] == 1 ){
+                if ( board[row][col][Pit] == 1 || board[row][col][Wumpus] == 1){
                     i --;
                     continue;
                 }
@@ -102,11 +111,11 @@ public class EnvironmentSettingUp
                 int x = rand.nextInt( 100 );
                 int row = x / 10;
                 int col = x % 10;
-                if (row > 5 || ( row == ( BOARD_SIZE - 1 ) && col == 0) ){
+                if (row > 5 || ( row == ( sizeOfBoard - 1 ) && col == 0) ){
                     i --;
                     continue;
                 }
-                if ( board[row][col][Pit] == 1  || board[row][col][Wumpus] == 1) {
+                if ( board[row][col][Pit] == 1 ){// || board[row][col][Wumpus] == 1) {
                     i --;
                     continue;
                 }
@@ -116,50 +125,98 @@ public class EnvironmentSettingUp
             }
 
         } while(!bfs());
-    }
 
-    private void setFixedEnvironment()
-    {
-        numOfGold=1;
-        numOfPit=13;
-        numOfWumpus=1;
+        for (int row = 0; row < sizeOfBoard; row++ )
+        {
+            for (int col = 0; col < sizeOfBoard; col++ )
+            {
+                if ( board[row][col][Pit] == 1 )
+                {
 
-        board[4][4][6]=1;//Wumpus SetUp
-        board[6][6][2]=1;//Gold SetUp
+                    try
+                    {
+                        if( board[row][col-1][Pit] != 1 )
+                            board[row][col-1][Breeze] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
 
-        setPitValueInFixedEnv(numOfPit);
+                    try
+                    {
+                        if( board[row-1][col][Pit] != 1 )
+                            board[row-1][col][Breeze] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
 
-    }
+                    try
+                    {
+                        if( board[row][col+1][Pit] != 1 )
+                            board[row][col+1][Breeze] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
 
-    private void setPitValueInFixedEnv(int numOfPit) {
-        board[0][6][4]=1;
-        board[1][3][4]=1;
-        board[2][7][4]=1;
-        board[3][1][4]=1;
-        board[3][4][4]=1;
-        board[4][8][4]=1;
-        board[5][2][4]=1;
-        board[5][5][4]=1;
-        board[7][0][4]=1;
-        board[7][6][4]=1;
-        board[8][3][4]=1;
-        board[8][7][4]=1;
-        board[9][9][4]=1;
-    }
-
-    public void print(){
-        for(int i=0;i<10;i++){
-            for(int j=0;j<10;j++){
-
-                if(board[i][j][6]==1){
-                    System.out.println("Wumpus is here.\nPosition = "+i+","+j+"\n");
-                }
-                if(board[i][j][2]==1){
-                    System.out.println("Gold is here.\nPosition = "+i+","+j+"\n");
+                    try
+                    {
+                        if( board[row+1][col][Pit] != 1 )
+                            board[row+1][col][Breeze] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
                 }
 
-                if(board[i][j][4]==1){
-                    System.out.println("Pit Position = "+i+","+j+"\n");
+                if ( board[row][col][Wumpus] == 1 )
+                {
+
+                    try
+                    {
+                        if( board[row][col-1][Pit] != 1 ) board[row][col-1][Stench] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+
+                    try
+                    {
+                        if( board[row-1][col][Pit] != 1 ) board[row-1][col][Stench] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+
+                    try
+                    {
+                        if( board[row][col+1][Pit] != 1 ) board[row][col+1][Stench] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+
+                    try
+                    {
+                        if( board[row+1][col][Pit] != 1 ) board[row+1][col][Stench] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+                }
+
+                if ( board[row][col][Gold] == 1 )
+                {
+
+
+                    try
+                    {
+                        if ( board[row][col-1][Pit] != 1 ) board[row][col-1][Glitter] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+
+                    try
+                    {
+                        if ( board[row-1][col][Pit] != 1 ) board[row-1][col][Glitter] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+
+                    try
+                    {
+                        if ( board[row][col+1][Pit] != 1 ) board[row][col+1][Glitter] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
+
+                    try
+                    {
+                        if ( board[row+1][col][Pit] != 1 ) board[row+1][col][Glitter] = 1;
+                    }
+                    catch( ArrayIndexOutOfBoundsException e ){  }
                 }
             }
         }
@@ -168,42 +225,42 @@ public class EnvironmentSettingUp
     public boolean bfs( )
     {
         ArrayList<Integer> queue = new ArrayList<Integer>();
-        boolean solution_exists = false;
+        boolean isSolutionExist = false;
 
-        int[][] marked = new int[BOARD_SIZE][BOARD_SIZE];
-        int[][] nodesID = new int[BOARD_SIZE][BOARD_SIZE];
-        int[][] relationships = new int[BOARD_SIZE*BOARD_SIZE][BOARD_SIZE*BOARD_SIZE];
+        int[][] checked = new int[sizeOfBoard][sizeOfBoard];
+        int[][] nodesID = new int[sizeOfBoard][sizeOfBoard];
+        int[][] relationships = new int[sizeOfBoard * sizeOfBoard][sizeOfBoard * sizeOfBoard];
 
-        int node_count = 0;
+        int node_counter = 0;
 
-        for ( int row = 0; row < BOARD_SIZE; row++ )
+        for (int row = 0; row < sizeOfBoard; row++ )
         {
-            for ( int col = 0; col < BOARD_SIZE; col++ )
+            for (int col = 0; col < sizeOfBoard; col++ )
             {
-                marked[row][col] = 0;
+                checked[row][col] = 0;
             }
         }
 
-        for ( int row = 0; row < BOARD_SIZE; row++ )
+        for (int row = 0; row < sizeOfBoard; row++ )
         {
-            for ( int col = 0; col < BOARD_SIZE; col++ )
+            for (int col = 0; col < sizeOfBoard; col++ )
             {
-                nodesID[row][col] = node_count;
-                node_count += 1;
+                nodesID[row][col] = node_counter;
+                node_counter += 1;
             }
         }
 
-        for ( int row = 0; row < BOARD_SIZE*BOARD_SIZE; row++ )
+        for (int row = 0; row < sizeOfBoard * sizeOfBoard; row++ )
         {
-            for ( int col = 0; col < BOARD_SIZE*BOARD_SIZE; col++ )
+            for (int col = 0; col < sizeOfBoard * sizeOfBoard; col++ )
             {
                 relationships[row][col] = 0;
             }
         }
 
-        for ( int row = 0; row < BOARD_SIZE; row++ )
+        for (int row = 0; row < sizeOfBoard; row++ )
         {
-            for ( int col = 0; col < BOARD_SIZE; col++ )
+            for (int col = 0; col < sizeOfBoard; col++ )
             {
                 try
                 {
@@ -231,8 +288,8 @@ public class EnvironmentSettingUp
             }
         }
 
-        queue.add( nodesID[BOARD_SIZE-1][0 ] );
-        marked[BOARD_SIZE-1][0 ] = 1;
+        queue.add( nodesID[sizeOfBoard -1][0 ] );
+        checked[sizeOfBoard -1][0 ] = 1;
 
         while( !queue.isEmpty() )
         {
@@ -240,23 +297,117 @@ public class EnvironmentSettingUp
 
             if( board[ ( int ) node / 10 ][ (int) node % 10 ] [Gold] == 1 )
             {
-                solution_exists = true;
+                isSolutionExist = true;
                 break;
             }
             else
             {
-                for ( int i = 0 ; i < BOARD_SIZE*BOARD_SIZE ; i++ )
+                for (int i = 0; i < sizeOfBoard * sizeOfBoard; i++ )
                 {
-                    if ( relationships[node][i] == 1 && board[ ( int ) i / 10 ][ (int) i % 10 ] [Pit] != 1 && marked[ ( int ) i / 10 ][ (int) i % 10 ] != 1 )
+                    if ( relationships[node][i] == 1 && board[ ( int ) i / 10 ][ (int) i % 10 ] [Pit] != 1 && checked[ ( int ) i / 10 ][ (int) i % 10 ] != 1 )
                     {
                         queue.add( nodesID[ ( int ) i / 10 ][ (int) i % 10 ] );
-                        marked[ ( int ) i / 10 ][ (int) i % 10 ] = 1;
+                        checked[ ( int ) i / 10 ][ (int) i % 10 ] = 1;
                     }
                 }
             }
         }
 
-        return solution_exists;
+        return isSolutionExist;
+    }
+
+
+    private void setFixedEnvironment()
+    {
+        numOfGold=1;
+        numOfPit=13;
+        numOfWumpus=1;
+
+        board[4][4][Wumpus]=1;//Wumpus SetUp
+        board[6][6][Gold]=1;//Gold SetUp
+
+        setPitsInFixedEnv(numOfPit);
+        setBreezesValueInFixedEnv();
+        setStenchesValueInFixedEnv();
+        setGlittersInFixedEnv();
+
+    }
+
+    private void setGlittersInFixedEnv() {
+        board[6][5][Glitter]=1;
+        board[6][7][Glitter]=1;
+        board[7][5][Glitter]=1;
+        board[7][7][Glitter]=1;
+
+    }
+
+    private void setStenchesValueInFixedEnv() {
+        board[4][3][Stench]=1;
+        board[4][5][Stench]=1;
+        board[5][4][Stench]=1;
+
+    }
+
+    private void setBreezesValueInFixedEnv() {
+        board[1][4][Breeze]=1;
+        board[1][7][Breeze]=1;
+        board[2][3][Breeze]=1;
+        board[2][6][Breeze]=1;
+        board[3][2][Breeze]=1;
+        board[3][5][Breeze]=1;
+        board[3][7][Breeze]=1;
+        board[4][7][Breeze]=1;
+        board[4][9][Breeze]=1;
+        board[5][2][Breeze]=1;
+        board[5][4][Breeze]=1;
+        board[5][6][Breeze]=1;
+        board[5][8][Breeze]=1;
+        board[6][1][Breeze]=1;
+        board[6][2][Breeze]=1;
+        board[6][5][Breeze]=1;
+        board[7][0][Breeze]=1;
+        board[7][5][Breeze]=1;
+        board[7][7][Breeze]=1;
+        board[8][2][Breeze]=1;
+        board[8][3][Breeze]=1;
+        board[8][6][Breeze]=1;
+        board[9][2][Breeze]=1;
+        board[9][7][Breeze]=1;
+        board[9][8][Breeze]=1;
+    }
+
+    private void setPitsInFixedEnv(int numOfPit) {
+        board[0][6][Pit]=1;
+        board[1][3][Pit]=1;
+        board[2][7][Pit]=1;
+        board[3][1][Pit]=1;
+        board[3][4][Pit]=1;
+        board[4][8][Pit]=1;
+        board[5][1][Pit]=1;
+        board[5][5][Pit]=1;
+        board[6][0][Pit]=1;
+        board[7][6][Pit]=1;
+        board[8][7][Pit]=1;
+        board[9][3][Pit]=1;
+        board[9][9][Pit]=1;
+    }
+
+    public void print(){
+        for(int i=0;i<10;i++){
+            for(int j=0;j<10;j++){
+
+                if(board[i][j][Wumpus]==1){
+                    System.out.println("Wumpus is here.\nPosition = "+i+","+j+"\n");
+                }
+                if(board[i][j][Gold]==1){
+                    System.out.println("Gold is here.\nPosition = "+i+","+j+"\n");
+                }
+
+                if(board[i][j][Pit]==1){
+                    System.out.println("Pit Position = "+i+","+j+"\n");
+                }
+            }
+        }
     }
 
 }
