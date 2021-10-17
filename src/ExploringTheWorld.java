@@ -7,7 +7,7 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
     int Visited=0,Breeze=1,Gold=2,SafeSquare=3,Pit=4,Stench=5,Wumpus=6,Glitter=7;
     int top=0,left=1,right=2,bottom=3;
     EnvironmentSettingUp environmentSettingUp = new EnvironmentSettingUp();
-    int[][][] board = new int[10][10][7];
+    int[][][] board = new int[10][10][8];
     private int[][] pitPossibility, wumpusPossibility, nodesID, relationships;
     private int[] parent, checked;
     static final int sizeOfBoard = 10;
@@ -41,11 +41,6 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
         int nodeCounter = 0;
         int currentNodeID = agentRow * 10 + agentCol;
 
-        for (int i = 0; i < sizeOfBoard * sizeOfBoard; i++ )
-        {
-            parent[i] = -1;
-        }
-
         for (int row = 0; row < sizeOfBoard; row++ )
         {
             for (int col = 0; col < sizeOfBoard; col++ )
@@ -55,6 +50,13 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
                 nodeCounter += 1;
             }
         }
+
+
+        for (int i = 0; i < sizeOfBoard * sizeOfBoard; i++ )
+        {
+            parent[i] = -1;
+        }
+
 
         for (int row = 0; row < sizeOfBoard; row++ )
         {
@@ -81,6 +83,7 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
                 else relationships[ nodesID[row][col] ][ bottom ] = -1;
             }
         }
+
 
         for (int row = 0; row < sizeOfBoard * sizeOfBoard; row++ )
         {
@@ -173,19 +176,19 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
             nearestNodeId = relationships[currentNodeID][i];
             if(nearestNodeId == -1 || board[nearestNodeId / 10][nearestNodeId % 10][Visited] == 1) continue;
 
-            boolean pitEntailedInThisMove = false, wumpusEntailedInThisMove = false;
+            boolean pitEntailedInThisMove = false;// wumpusEntailedInThisMove = false;
 
             if(isBreezeHere && pitPossibility[nearestNodeId / 10][nearestNodeId % 10] != 0)
             {
                 if(pitPossibility[nearestNodeId / 10][nearestNodeId % 10] == -1 && wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] == 1)
                 {
                     pitPossibility[nearestNodeId / 10][nearestNodeId % 10] = 0;
-                    wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] = 1;
+                    wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] = 0;
                 }
 
                 else {
                     if (pitPossibility[nearestNodeId / 10][nearestNodeId % 10] == 1)
-                        pitEntailedInThisMove = false;
+                    pitEntailedInThisMove = false;
 
                     else
                         pitEntailedInThisMove = true;
@@ -249,6 +252,7 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
                 wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] = 0;
             }
 
+
             if((!isBreezeHere && !isStenchHere) ||
                     (wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] <=0 && pitPossibility[nearestNodeId / 10][nearestNodeId % 10] <=0))
             {
@@ -275,13 +279,16 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
             System.out.println("UnSafe Node: " +unsafeCell[j]);
         }
 
-        if(numOfSafeCell > 0) {
-            for(int k = 0; k < numOfSafeCell; k++) {
+        if(numOfSafeCell > 0)
+        {
+            for(int k = 0; k < numOfSafeCell; k++)
+            {
                 parent[safeCell[k]] = currentNodeID;
                 board[ safeCell[k] / 10 ][ safeCell[k] % 10 ][Visited] = 1;
                 lastNode = safeCell[k];
 
-                if(k != numOfSafeCell-1) {
+                if(k != numOfSafeCell-1)
+                {
                     isSafeCellInPreviousNode = true;
                 }
 
@@ -338,7 +345,8 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
                     System.out.println("Decision: Moving "+side+", Throwing arrow for the safety");
                     try {
                         Thread.sleep(sleep - 200);
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException e)
+                    {
                         e.printStackTrace();
                     }
 

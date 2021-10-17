@@ -193,8 +193,9 @@ public class EnvironmentSettingUp
                 if ( board[row][col][Gold] == 1 )
                 {
 
+                    board[row][col][Glitter] = 1;
 
-                    try
+                    /*try
                     {
                         if ( board[row][col-1][Pit] != 1 ) board[row][col-1][Glitter] = 1;
                     }
@@ -216,7 +217,7 @@ public class EnvironmentSettingUp
                     {
                         if ( board[row+1][col][Pit] != 1 ) board[row+1][col][Glitter] = 1;
                     }
-                    catch( ArrayIndexOutOfBoundsException e ){  }
+                    catch( ArrayIndexOutOfBoundsException e ){  }*/
                 }
             }
         }
@@ -304,10 +305,10 @@ public class EnvironmentSettingUp
             {
                 for (int i = 0; i < sizeOfBoard * sizeOfBoard; i++ )
                 {
-                    if ( relationships[node][i] == 1 && board[ ( int ) i / 10 ][ (int) i % 10 ] [Pit] != 1 && checked[ ( int ) i / 10 ][ (int) i % 10 ] != 1 )
+                    if ( relationships[node][i] == 1 && board[ i / 10 ][ i % 10 ] [Pit] != 1 && checked[ i / 10 ][ i % 10 ] != 1 )
                     {
-                        queue.add( nodesID[ ( int ) i / 10 ][ (int) i % 10 ] );
-                        checked[ ( int ) i / 10 ][ (int) i % 10 ] = 1;
+                        queue.add( nodesID[ i / 10 ][ i % 10 ] );
+                        checked[ i / 10 ][ i % 10 ] = 1;
                     }
                 }
             }
