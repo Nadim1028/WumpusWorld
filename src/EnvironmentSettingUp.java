@@ -296,7 +296,7 @@ public class EnvironmentSettingUp
         {
             int node = queue.remove( 0 );
 
-            if( board[ ( int ) node / 10 ][ (int) node % 10 ] [Gold] == 1 )
+            if( board[ node / 10 ][ node % 10 ] [Gold] == 1 )
             {
                 isSolutionExist = true;
                 break;
