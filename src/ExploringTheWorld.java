@@ -176,7 +176,7 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
             nearestNodeId = relationships[currentNodeID][i];
             if(nearestNodeId == -1 || board[nearestNodeId / 10][nearestNodeId % 10][Visited] == 1) continue;
 
-            boolean pitEntailedInThisMove = false;// wumpusEntailedInThisMove = false;
+            boolean pitMaxPossibilityInThisMove = false;
 
             if(isBreezeHere && pitPossibility[nearestNodeId / 10][nearestNodeId % 10] != 0)
             {
@@ -188,12 +188,12 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
 
                 else {
                     if (pitPossibility[nearestNodeId / 10][nearestNodeId % 10] == 1)
-                    pitEntailedInThisMove = false;
+                    pitMaxPossibilityInThisMove = false;
 
                     else
-                        pitEntailedInThisMove = true;
+                        pitMaxPossibilityInThisMove = true;
 
-                    if(pitEntailedInThisMove)
+                    if(pitMaxPossibilityInThisMove)
                         pitPossibility[nearestNodeId / 10][nearestNodeId % 10] = 1;
 
                     else {
@@ -219,7 +219,7 @@ public class ExploringTheWorld extends SwingWorker<Void, String>
             {
                 if(wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] == -1 && pitPossibility[nearestNodeId / 10][nearestNodeId % 10] == 1)
                 {
-                    if(pitEntailedInThisMove)
+                    if(pitMaxPossibilityInThisMove)
                     {
                         wumpusPossibility[nearestNodeId / 10][nearestNodeId % 10] = 1;
                     }
